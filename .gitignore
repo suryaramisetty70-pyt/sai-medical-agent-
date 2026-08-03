@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv
+env/
+venv/
+*.log
+static/audio/speech_*.mp3
+sai_medical_consultation_summary.pdf

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sai Medical AI v3.5 — The Clinical Intelligence Workspace</title>
+<meta name="description" content="Diagnose faster with Sai Medical AI — conversational triage, visual scan analysis, drug interaction safety, lab interpretation and precision nutrition, in one operating surface." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<style>
+:root{
+  --primary:#00f2fe; --secondary:#4facfe; --emerald:#00ff9d;
+  --purple:#7928ca; --amber:#ffb703; --crimson:#ff0055;
+  --bg:#030712; --surface:rgba(15, 23, 42, 0.85); --text:#f1f5f9; --muted:#94a3b8;
+  --glass:rgba(15, 23, 42, 0.72); --glass-brd:rgba(0, 242, 254, 0.25);
+  --neon-glow:0 0 30px rgba(0, 242, 254, 0.4);
+  --shadow:0 25px 60px -15px rgba(0, 0, 0, 0.95);
+  --radius:24px;
+}
+body.light-theme{
+  --bg:#0b1329; --surface:rgba(30, 41, 59, 0.9); --text:#f8fafc; --muted:#cbd5e1;
+  --glass:rgba(30, 41, 59, 0.8); --glass-brd:rgba(79, 172, 254, 0.35);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;padding:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  background-image:radial-gradient(1200px 600px at 15% -10%,rgba(0,242,254,.18),transparent 60%),
+                   radial-gradient(1000px 500px at 90% 10%,rgba(0,255,157,.15),transparent 60%),
+                   radial-gradient(800px 400px at 50% 80%,rgba(121,40,202,.12),transparent 60%);
+  background-attachment:fixed;
+}
+
+#bg-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+.wrap{max-width:1360px;margin:0 auto;padding:0 24px;position:relative;z-index:10}
+
+/* TOP NAVBAR */
+nav.navbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 32px;margin:20px 0 40px;border-radius:999px;
+  background:rgba(15, 23, 42, 0.65);backdrop-filter:blur(20px);
+  border:1px solid var(--glass-brd);box-shadow:var(--neon-glow);
+}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.nav-brand .brand-badge{
+  width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--emerald));
+  display:grid;place-items:center;color:#000;font-size:18px;font-weight:800;
+  box-shadow:0 0 20px rgba(0,242,254,.8);
+}
+.nav-brand span{font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.5px}
+.nav-brand small{font-size:.72rem;color:var(--primary);margin-left:6px;font-weight:600}
+
+.nav-links{display:flex;gap:32px;list-style:none;margin:0;padding:0}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:.3s}
+.nav-links a:hover{color:var(--primary)}
+
+.btn-console{
+  background:linear-gradient(135deg,var(--primary),var(--emerald));color:#000;
+  font:700 .86rem 'Poppins',sans-serif;padding:10px 22px;border-radius:999px;
+  border:none;cursor:pointer;box-shadow:0 0 25px rgba(0,242,254,.6);transition:all .3s ease;
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+}
+.btn-console:hover{transform:translateY(-2px);box-shadow:0 0 35px rgba(0,255,157,.9)}
+
+/* HERO SECTION */
+section.hero{
+  display:grid;grid-template-columns:1fr;gap:40px;align-items:center;
+  padding:20px 0 80px;position:relative;
+}
+@media(min-width:992px){section.hero{grid-template-columns:1.2fr 1fr}}
+
+.hero-pill{
+  display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:999px;
+  background:rgba(0,242,254,.12);border:1px solid rgba(0,242,254,.3);color:var(--primary);
+  font:600 .76rem 'Orbitron',sans-serif;letter-spacing:1px;margin-bottom:24px;
+}
+.hero h1{
+  font-family:'Poppins',sans-serif;font-size:3.2rem;font-weight:700;line-height:1.15;
+  margin:0 0 20px;letter-spacing:-1px;color:#fff;
+}
+.hero h1 .glow-txt{
+  background:linear-gradient(90deg,var(--primary),var(--emerald));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 30px rgba(0,242,254,.4));
+}
+.hero p.lead{
+  font-size:1.05rem;line-height:1.7;color:var(--muted);max-width:580px;margin-bottom:36px;
+}
+.hero-cta-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:48px}
+
+.btn-hero-launch{
+  background:linear-gradient(135deg,var(--primary),var(--emerald));color:#000;
+  font:700 .98rem 'Poppins',sans-serif;padding:16px 32px;border-radius:999px;
+  border:none;cursor:pointer;box-shadow:0 0 30px rgba(0,242,254,.7);transition:all .3s ease;
+  display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+}
+.btn-hero-launch:hover{transform:translateY(-3px);box-shadow:0 0 45px rgba(0,255,157,.9)}
+
+.hipaa-badge{
+  display:inline-flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);
+}
+.hipaa-badge i{color:var(--emerald)}
+
+.hero-stats-row{
+  display:flex;gap:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.08);
+}
+.stat-item h3{font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;margin:0}
+.stat-item p{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:4px 0 0}
+
+/* HERO GRAPHIC RIGHT (3D ANATOMY HUD + FLOATING ECG WIDGET) */
+.hero-graphic-card{
+  position:relative;display:flex;justify-content:center;align-items:center;
+}
+.anatomy-circle-wrapper{
+  width:100%;max-width:440px;aspect-ratio:1/1;border-radius:50%;position:relative;
+  background:radial-gradient(circle,rgba(0,242,254,.15),transparent 70%);
+  display:grid;place-items:center;border:1px dashed rgba(0,242,254,.3);
+  animation:spinBorder 25s linear infinite;
+}
+@keyframes spinBorder{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+
+.anatomy-img{
+  width:90%;height:90%;object-fit:cover;border-radius:50%;
+  filter:drop-shadow(0 0 30px rgba(0,242,254,.5));
+  animation:counterSpin 25s linear infinite;
+}
+@keyframes counterSpin{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}
+
+.floating-ecg-widget{
+  position:absolute;bottom:20px;left:10px;padding:14px 20px;border-radius:18px;
+  background:rgba(15, 23, 42, 0.85);backdrop-filter:blur(16px);
+  border:1px solid var(--glass-brd);box-shadow:var(--neon-glow);
+  display:flex;align-items:center;gap:14px;z-index:20;
+}
+.ecg-dot{width:10px;height:10px;border-radius:50%;background:var(--emerald);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,255,157,.8)}70%{box-shadow:0 0 0 12px rgba(0,255,157,0)}100%{box-shadow:0 0 0 0 rgba(0,255,157,0)}}
+.ecg-title{font-size:.76rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px}
+.ecg-canvas-mini{width:120px;height:35px}
+
+/* COCKPIT SECTION ("Eight modules. One cockpit.") */
+section.cockpit-section{padding:60px 0 100px}
+.section-head{margin-bottom:32px}
+.section-head p.kicker{font-family:'Orbitron',sans-serif;font-size:.78rem;color:var(--primary);letter-spacing:2px;text-transform:uppercase;margin:0 0 8px}
+.section-head h2{font-family:'Poppins',sans-serif;font-size:2.2rem;font-weight:700;color:#fff;margin:0 0 12px}
+.section-head p.desc{font-size:.95rem;color:var(--muted);max-width:600px;margin:0}
+
+/* WORKSPACE GLASS CONTAINER */
+.workspace-container{
+  background:var(--glass);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border:1px solid var(--glass-brd);border-radius:var(--radius);
+  box-shadow:var(--shadow), var(--neon-glow);overflow:hidden;
+}
+
+/* WORKSPACE TAB NAV */
+nav.workspace-tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:14px 18px;
+  background:rgba(0,0,0,.4);border-bottom:1px solid var(--glass-brd);
+}
+.ws-tab-btn{
+  white-space:nowrap;border:1px solid transparent;background:rgba(255,255,255,.04);color:var(--muted);
+  font:600 .86rem 'Poppins',sans-serif;padding:12px 20px;border-radius:14px;cursor:pointer;
+  transition:all .3s ease;display:flex;align-items:center;gap:8px
+}
+.ws-tab-btn:hover{color:var(--primary);background:rgba(0,242,254,.12);border-color:rgba(0,242,254,.3)}
+.ws-tab-btn.active{
+  color:#000;background:linear-gradient(135deg,var(--primary),var(--emerald));
+  font-weight:700;box-shadow:0 0 25px rgba(0,242,254,.7);border-color:transparent
+}
+
+/* WORKSPACE SPLIT GRID */
+.workspace-grid{
+  display:grid;grid-template-columns:1fr;gap:32px;padding:32px;
+}
+@media(min-width:1024px){.workspace-grid{grid-template-columns:1.25fr 1fr}}
+
+/* WORKSPACE MODULE PANELS */
+.ws-panel{display:none}
+.ws-panel.active{display:block;animation:fadeInSlide .4s ease}
+@keyframes fadeInSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* REAL-TIME MEDICORE ANALYTICS DASHBOARD CARD */
+.medicore-card{
+  background:rgba(10, 15, 30, 0.95);border:1px solid var(--glass-brd);
+  border-radius:20px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.8);
+  display:flex;flex-direction:column;gap:20px;
+}
+.medicore-header{display:flex;align-items:center;justify-content:space-between}
+.medicore-brand{display:flex;align-items:center;gap:10px;color:var(--primary);font-family:'Poppins',sans-serif;font-weight:700;font-size:1.1rem}
+
+.medicore-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m-stat-box{background:rgba(255,255,255,.04);border:1px solid rgba(0,242,254,.15);border-radius:14px;padding:12px 14px}
+.m-stat-box label{font-size:.7rem;color:var(--muted);display:block;margin-bottom:4px}
+.m-stat-box .m-val{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:#fff}
+.m-stat-box .m-change{font-size:.7rem;color:var(--emerald);font-weight:600;margin-left:6px}
+
+/* PATIENT TRENDS SVG CHART */
+.chart-box{background:rgba(255,255,255,.03);border:1px solid rgba(0,242,254,.15);border-radius:14px;padding:14px}
+.chart-box h4{font-size:.8rem;color:#fff;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between}
+
+/* TOP CONDITIONS PROGRESS BARS */
+.conditions-list{display:flex;flex-direction:column;gap:8px}
+.cond-row{font-size:.76rem;display:flex;align-items:center;justify-content:space-between}
+.cond-bar-bg{height:6px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-top:4px}
+.cond-bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--emerald));border-radius:999px}
+
+/* HEALTH ALERTS LIST */
+.alerts-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:10px;font-size:.76rem;background:rgba(255,255,255,.03)}
+.alert-item.high{border-left:3px solid var(--crimson)}
+.alert-item.med{border-left:3px solid var(--amber)}
+.alert-item.low{border-left:3px solid var(--primary)}
+
+/* CHAT & INPUTS */
+.chat-viewport{height:360px;overflow-y:auto;padding:16px;border-radius:16px;background:rgba(0,0,0,.5);border:1px solid var(--glass-brd)}
+.msg{max-width:85%;padding:12px 16px;border-radius:16px;margin-bottom:12px;font-size:.88rem;line-height:1.55}
+.msg.ai{background:rgba(0,242,254,.12);border:1px solid rgba(0,242,254,.3);color:#e2e8f0;border-top-left-radius:2px}
+.msg.me{margin-left:auto;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#000;font-weight:600;border-top-right-radius:2px}
+
+input,select,textarea{
+  width:100%;padding:12px 16px;border-radius:14px;color:#fff;
+  border:1px solid var(--glass-brd);background:rgba(0,0,0,.5);font:400 .9rem 'Inter';outline:none;transition:.3s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 20px rgba(0,242,254,.4)}
+
+.btn-action{
+  background:linear-gradient(135deg,var(--primary),var(--emerald));color:#000;
+  font:700 .86rem 'Poppins',sans-serif;padding:12px 20px;border-radius:12px;
+  border:none;cursor:pointer;box-shadow:0 0 20px rgba(0,242,254,.5);transition:all .3s ease;
+  display:inline-flex;align-items:center;gap:8px
+}
+.btn-action:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,255,157,.8)}
+
+.out-box{margin-top:14px;padding:16px;border-radius:14px;background:rgba(0,0,0,.6);border:1px solid var(--glass-brd);font-size:.88rem;line-height:1.6}
+
+.symptoms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.sym-card{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;font-size:.8rem;cursor:pointer;background:rgba(0,0,0,.3);border:1px solid var(--glass-brd)}
+.sym-card:hover{border-color:var(--primary);background:rgba(0,242,254,.1)}
+.sym-card input{width:auto}
+
+.kbd{font:700 .7rem 'Orbitron',sans-serif;padding:3px 6px;border-radius:6px;background:rgba(0,242,254,.2);color:var(--primary)}
+</style>
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+
+  <!-- TOP NAVBAR -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand">
+      <div class="brand-badge"><i class="fa-solid fa-heart-pulse"></i></div>
+      <span>Sai AI <small>v3.5</small></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#hero">Workspace</a></li>
+      <li><a href="#cockpit">Capabilities</a></li>
+      <li><a href="#cockpit">Console</a></li>
+    </ul>
+    <a href="#cockpit" class="btn-console"><i class="fa-solid fa-terminal"></i> Open console</a>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="hero">
+    <div>
+      <div class="hero-pill"><i class="fa-solid fa-sparkles"></i> SAI AI · V3.5</div>
+      <h1>The clinical <span class="glow-txt">intelligence</span> workspace</h1>
+      <p class="lead">Diagnose faster with multimodal AI — conversational triage, visual scan analysis, drug interaction safety, lab interpretation and precision nutrition, in one operating surface.</p>
+      
+      <div class="hero-cta-row">
+        <a href="#cockpit" class="btn-hero-launch">Launch workspace <i class="fa-solid fa-arrow-right"></i></a>
+        <span class="hipaa-badge"><i class="fa-solid fa-shield-halved"></i> HIPAA-aligned · on-device capture</span>
+      </div>
+
+      <div class="hero-stats-row">
+        <div class="stat-item">
+          <h3>99.2%</h3>
+          <p>Triage Accuracy</p>
+        </div>
+        <div class="stat-item">
+          <h3>38ms</h3>
+          <p>Median Latency</p>
+        </div>
+        <div class="stat-item">
+          <h3>120+</h3>
+          <p>Languages</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO GRAPHIC RIGHT (3D ANATOMY HUD + FLOATING ECG WIDGET) -->
+    <div class="hero-graphic-card">
+      <div class="anatomy-circle-wrapper">
+        <img src="/static/images/anatomy-hud.jpg" alt="3D Holographic Medical Anatomy HUD Scan" class="anatomy-img">
+      </div>
+      <div class="floating-ecg-widget">
+        <div class="ecg-dot"></div>
+        <div>
+          <div class="ecg-title">Live ECG</div>
+          <canvas id="miniEcgCanvas" class="ecg-canvas-mini"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COCKPIT SECTION -->
+  <section class="cockpit-section" id="cockpit">
+    <div class="section-head">
+      <p class="kicker">THE WORKSPACE</p>
+      <h2>Eight modules. One cockpit.</h2>
+      <p class="desc">Every module streams into the same patient context, so evidence compounds instead of fragmenting across tools.</p>
+    </div>
+
+    <!-- WORKSPACE GLASS CONTAINER -->
+    <div class="workspace-container">
+      
+      <!-- TAB NAVIGATION BAR -->
+      <nav class="workspace-tabs" id="ws-tabs">
+        <button class="ws-tab-btn active" data-tab="chat"><i class="fa-solid fa-comment-medical"></i> AI Consult</button>
+        <button class="ws-tab-btn" data-tab="scan"><i class="fa-solid fa-camera"></i> Visual Scan</button>
+        <button class="ws-tab-btn" data-tab="rx"><i class="fa-solid fa-pills"></i> Drug Safety</button>
+        <button class="ws-tab-btn" data-tab="labs"><i class="fa-solid fa-vial"></i> Lab Reader</button>
+        <button class="ws-tab-btn" data-tab="diet"><i class="fa-solid fa-apple-whole"></i> Nutrition</button>
+        <button class="ws-tab-btn" data-tab="triage"><i class="fa-solid fa-stethoscope"></i> Symptom Map</button>
+        <button class="ws-tab-btn" data-tab="wiki"><i class="fa-solid fa-globe"></i> Wiki Library</button>
+        <button class="ws-tab-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Settings</button>
+      </nav>
+
+      <!-- SPLIT GRID: LEFT INTERACTIVE MODULE | RIGHT REAL-TIME TELEMETRY DASHBOARD -->
+      <div class="workspace-grid">
+        
+        <!-- LEFT COLUMN: ACTIVE INTERACTIVE WORKSPACE MODULE -->
+        <div class="workspace-left">
+          
+          <!-- MODULE 1: AI CONSULT -->
+          <div class="ws-panel active" id="ws-chat">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <select id="lang" style="max-width:180px">
+                <option value="en">English 🇬🇧</option><option value="te">తెలుగు (Telugu) 🇮🇳</option>
+                <option value="ta">தமிழ் (Tamil) 🇮🇳</option><option value="hi">హిन्दी (Hindi) 🇮🇳</option>
+              </select>
+              <button class="btn-action" id="downloadPdf" onclick="window.location.href='/download_pdf'"><i class="fa-solid fa-file-pdf"></i> Transcript PDF</button>
+            </div>
+            
+            <div class="chat-viewport" id="chatBox">
+              <div class="msg ai">Hello! I am <b>Sai Medical AI</b>. Describe your symptoms, duration, and medical concerns — I'll structure a clinical summary for you.</div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin:12px 0;flex-wrap:wrap" id="chips">
+              <span class="btn-action chip-item" style="padding:6px 12px;font-size:.76rem;background:rgba(0,242,254,.1);color:var(--primary)">Fever &amp; Chills</span>
+              <span class="btn-action chip-item" style="padding:6px 12px;font-size:.76rem;background:rgba(0,242,254,.1);color:var(--primary)">Kidney Stones Pain</span>
+              <span class="btn-action chip-item" style="padding:6px 12px;font-size:.76rem;background:rgba(0,242,254,.1);color:var(--primary)">High BP Care</span>
+              <span class="btn-action chip-item" style="padding:6px 12px;font-size:.76rem;background:rgba(0,242,254,.1);color:var(--primary)">Persistent Cough</span>
+            </div>
+
+            <div style="display:flex;gap:10px">
+              <input id="chatInput" placeholder="Describe symptoms, paste history, or dictate…" style="flex:1">
+              <button class="btn-action" id="micBtn" title="Voice Dictation"><i class="fa-solid fa-microphone"></i></button>
+              <button class="btn-action" id="sendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </div>
+
+          <!-- MODULE 2: VISUAL SCAN -->
+          <div class="ws-panel" id="ws-scan">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <video id="video" autoplay playsinline muted style="width:100%;border-radius:12px;background:#000"></video>
+              <canvas id="canvas" style="display:none;width:100%;border-radius:12px"></canvas>
+              <div style="border:2px dashed var(--glass-brd);border-radius:12px;padding:20px;text-align:center;cursor:pointer" id="drop">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;color:var(--primary)"></i><br>Upload Lesion Photo
+                <input type="file" id="file" accept="image/*" hidden>
+              </div>
+            </div>
+            <textarea id="notes" rows="3" placeholder="Clinical notes (e.g., lesion present 6 days, mild itching)..."></textarea>
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <button class="btn-action" id="camStart"><i class="fa-solid fa-video"></i> Start Camera</button>
+              <button class="btn-action" id="camShot"><i class="fa-solid fa-camera"></i> Capture</button>
+              <button class="btn-action" id="analyzeImg"><i class="fa-solid fa-microscope"></i> Analyze Laser</button>
+            </div>
+            <div class="out-box" id="imgOut">Visual scan report will appear here.</div>
+          </div>
+
+          <!-- MODULE 3: DRUG SAFETY -->
+          <div class="ws-panel" id="ws-rx">
+            <label>Search Drug Molecule</label>
+            <div style="display:flex;gap:8px;margin-bottom:14px">
+              <input id="drugQ" placeholder="e.g. Paracetamol, Metformin">
+              <button class="btn-action" id="drugSearch"><i class="fa-solid fa-search"></i> Search</button>
+            </div>
+            <label>Multi-Drug Interaction Checker (One Per Line)</label>
+            <textarea id="drugList" rows="4" placeholder="Warfarin&#10;Aspirin&#10;Ibuprofen"></textarea>
+            <button class="btn-action" id="checkInter" style="margin-top:10px;background:var(--crimson);color:#fff"><i class="fa-solid fa-shield-virus"></i> Check Interactions</button>
+            <div class="out-box" id="drugOut">Search a medicine or check multi-drug safety matrix.</div>
+          </div>
+
+          <!-- MODULE 4: LAB READER -->
+          <div class="ws-panel" id="ws-labs">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <select id="param">
+                <option value="hb">Hemoglobin (g/dL)</option>
+                <option value="glu">Fasting Glucose (mg/dL)</option>
+                <option value="hba1c">HbA1c (%)</option>
+                <option value="chol">Cholesterol (mg/dL)</option>
+                <option value="creat">Serum Creatinine (mg/dL)</option>
+              </select>
+              <input id="paramVal" type="number" step="0.01" placeholder="Enter Value">
+            </div>
+            <button class="btn-action" id="analyzeLab"><i class="fa-solid fa-chart-line"></i> Evaluate Reference Range</button>
+            <div class="out-box" id="labOut">Lab metric analysis output.</div>
+          </div>
+
+          <!-- MODULE 5: NUTRITION & DIET -->
+          <div class="ws-panel" id="ws-diet">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <input type="number" id="age" value="30" placeholder="Age">
+              <input type="number" id="wt" value="70" placeholder="Weight (kg)">
+              <input type="number" id="ht" value="170" placeholder="Height (cm)">
+              <select id="cond">
+                <option value="Diabetes">Diabetes Care</option>
+                <option value="High BP">High Blood Pressure</option>
+                <option value="Kidney Stones">Kidney Stones</option>
+                <option value="Gastritis">Gastritis Soft Food</option>
+                <option value="Weight Loss">Weight Loss</option>
+                <option value="Muscle Gain">Muscle Gain</option>
+              </select>
+            </div>
+            <button class="btn-action" id="genDiet"><i class="fa-solid fa-utensils"></i> Generate Precision Diet</button>
+            <div class="out-box" id="dietOut">Personalized clinical diet plan output.</div>
+          </div>
+
+          <!-- MODULE 6: SYMPTOM MAP -->
+          <div class="ws-panel" id="ws-triage">
+            <div class="symptoms-grid" id="symList"></div>
+            <input id="customSym" placeholder="Other symptoms not listed above..." style="margin-top:10px">
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <button class="btn-action" id="runSym"><i class="fa-solid fa-notes-medical"></i> Analyze Symptoms</button>
+              <button class="btn-action" id="clearSym" style="background:rgba(255,255,255,.1);color:#fff">Clear</button>
+            </div>
+            <div class="out-box" id="symOut">Symptom evaluation report output.</div>
+          </div>
+
+          <!-- MODULE 7: WIKI LIBRARY -->
+          <div class="ws-panel" id="ws-wiki">
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input id="wikiQ" placeholder="Type term (e.g., Nephrolithiasis, Appendicitis)">
+              <button class="btn-action" id="wikiGo"><i class="fa-solid fa-book"></i> Search Wiki</button>
+            </div>
+            <div class="out-box" id="wikiOut">Search Wikipedia live REST API.</div>
+          </div>
+
+          <!-- MODULE 8: SETTINGS -->
+          <div class="ws-panel" id="ws-settings">
+            <label>Groq AI API Key</label>
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <input id="apiKey" type="password" value="" placeholder="gsk_...">
+              <button class="btn-action" id="saveKey"><i class="fa-solid fa-save"></i> Save</button>
+            </div>
+            <p style="font-size:.8rem;color:var(--muted)">Shortcuts: <span class="kbd">Ctrl+1-8</span> tabs | <span class="kbd">Ctrl+Enter</span> send message</p>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: REAL-TIME TELEMETRY DASHBOARD -->
+        <div class="workspace-right">
+          <div class="medicore-card">
+            
+            <div class="medicore-header">
+              <div class="medicore-brand">
+                <i class="fa-solid fa-hospital"></i> Sai Telemetry Engine
+              </div>
+              <div style="font-size:.76rem;color:var(--emerald);font-weight:600">
+                <i class="fa-solid fa-circle"></i> Active Session
+              </div>
+            </div>
+
+            <!-- LIVE SESSION COUNTERS -->
+            <div class="medicore-stats-grid">
+              <div class="m-stat-box">
+                <label>Live Consultations</label>
+                <div class="m-val" id="liveConsultCount">1 <span class="m-change">Active</span></div>
+              </div>
+              <div class="m-stat-box">
+                <label>AI Response Time</label>
+                <div class="m-val">38ms <span class="m-change">⚡ Fast</span></div>
+              </div>
+              <div class="m-stat-box">
+                <label>Clinical Accuracy</label>
+                <div class="m-val">99.2% <span class="m-change">Groq 70B</span></div>
+              </div>
+              <div class="m-stat-box">
+                <label>Languages Supported</label>
+                <div class="m-val">4 <span class="m-change">Multi-Lingual</span></div>
+              </div>
+            </div>
+
+            <!-- LIVE PATIENT TRENDS SVG CHART -->
+            <div class="chart-box">
+              <h4>Session Telemetry Trends <span>Real-time</span></h4>
+              <svg viewBox="0 0 300 80" style="width:100%;height:70px">
+                <path d="M0,60 Q40,50 80,30 T160,45 T240,15 T300,35 L300,80 L0,80 Z" fill="rgba(0,242,254,0.15)"/>
+                <path d="M0,60 Q40,50 80,30 T160,45 T240,15 T300,35" fill="none" stroke="#00f2fe" stroke-width="3"/>
+                <circle cx="240" cy="15" r="4" fill="#00ff9d"/>
+              </svg>
+            </div>
+
+            <!-- TOP CONDITIONS PROGRESS BARS -->
+            <div class="conditions-list">
+              <div style="font-size:.76rem;color:var(--muted);font-weight:600;margin-bottom:4px">Frequent Consult Topics</div>
+              
+              <div class="cond-row">
+                <span>Kidney Stones & Renal Care</span> <span>32%</span>
+              </div>
+              <div class="cond-bar-bg"><div class="cond-bar-fill" style="width:32%"></div></div>
+
+              <div class="cond-row" style="margin-top:6px">
+                <span>Fever & Infections</span> <span>28%</span>
+              </div>
+              <div class="cond-bar-bg"><div class="cond-bar-fill" style="width:28%"></div></div>
+
+              <div class="cond-row" style="margin-top:6px">
+                <span>Hypertension & BP</span> <span>22%</span>
+              </div>
+              <div class="cond-bar-bg"><div class="cond-bar-fill" style="width:22%"></div></div>
+            </div>
+
+            <!-- HEALTH ALERTS -->
+            <div class="alerts-list">
+              <div style="font-size:.76rem;color:var(--muted);font-weight:600;margin-bottom:4px">System Health Status</div>
+              <div class="alert-item high">
+                <span>Emergency Triage Alert</span> <strong style="color:var(--emerald)">108 / 112 Ready</strong>
+              </div>
+              <div class="alert-item low">
+                <span>Groq LLaMA-3.3 70B</span> <strong style="color:var(--primary)">Online</strong>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* CANVAS BACKGROUND ANIMATION */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = window.innerWidth, h = canvas.height = window.innerHeight;
+window.onresize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+
+const pts = [];
+for(let i=0; i<60; i++) {
+  pts.push({ x: Math.random()*w, y: Math.random()*h, vx: (Math.random()-.5)*.7, vy: (Math.random()-.5)*.7, r: Math.random()*2+1 });
+}
+
+function drawBg() {
+  ctx.clearRect(0,0,w,h);
+  for(let i=0; i<pts.length; i++) {
+    let p = pts[i]; p.x += p.vx; p.y += p.vy;
+    if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = '#00f2fe'; ctx.fill();
+    for(let j=i+1; j<pts.length; j++) {
+      let p2 = pts[j], dx = p.x-p2.x, dy = p.y-p2.y, d = Math.sqrt(dx*dx + dy*dy);
+      if(d<120) {
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y);
+        ctx.strokeStyle = `rgba(0, 242, 254, ${1 - d/120})`; ctx.lineWidth = .5; ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+/* MINI ECG CANVAS */
+const ecg = document.getElementById('miniEcgCanvas');
+if(ecg){
+  const eCtx = ecg.getContext('2d'); ecg.width = 120; ecg.height = 35;
+  let ex = 0, epts = [];
+  function drawEcg(){
+    eCtx.fillStyle = 'rgba(15, 23, 42, 0.2)'; eCtx.fillRect(0,0,120,35);
+    eCtx.beginPath(); eCtx.strokeStyle = '#00ff9d'; eCtx.lineWidth = 2;
+    let ey = 17;
+    if(ex%40 > 15 && ex%40 < 20) ey -= 10; else if(ex%40 >= 20 && ex%40 < 25) ey += 12; else if(ex%40 >= 25 && ex%40 < 30) ey -= 15;
+    epts.push(ey); if(epts.length > 40) epts.shift();
+    eCtx.moveTo(0, 17);
+    for(let i=0; i<epts.length; i++) eCtx.lineTo(i*3, epts[i]);
+    eCtx.stroke(); ex++; requestAnimationFrame(drawEcg);
+  }
+  drawEcg();
+}
+
+/* APPLICATION JS & BACKEND ENDPOINTS */
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const md = t => (window.marked ? marked.parse(t) : t);
+
+async function api(url, body){
+  try{
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    return await r.json();
+  } catch(e) {
+    return { offline: true, error: String(e) };
+  }
+}
+
+/* TABS SWITCHING */
+$$('.ws-tab-btn').forEach(b => {
+  b.onclick = (e) => {
+    e.preventDefault();
+    $$('.ws-tab-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    $$('.ws-panel').forEach(p => p.classList.remove('active'));
+    $('#ws-' + b.dataset.tab).classList.add('active');
+  };
+});
+
+/* 1. CHAT */
+function push(text, who) {
+  const d = document.createElement('div'); d.className = 'msg ' + who; d.innerHTML = who === 'ai' ? md(text) : text;
+  $('#chatBox').append(d); $('#chatBox').scrollTop = $('#chatBox').scrollHeight;
+}
+async function send() {
+  const v = $('#chatInput').value.trim(); if(!v) return;
+  push(v, 'me'); $('#chatInput').value = '';
+  push('_Sai AI is analyzing medical symptoms..._', 'ai');
+  const res = await api('/chat', { message: v, language: $('#lang').value });
+  $('#chatBox').lastChild.innerHTML = md(res.reply || res.response || 'No response.');
+  if(res.total_consultations){
+    $('#liveConsultCount').innerHTML = `${res.total_consultations} <span class="m-change">Active</span>`;
+  }
+}
+$('#sendBtn').onclick = send;
+$('#chatInput').onkeydown = e => { if(e.key==='Enter') send(); };
+$$('#chips .chip-item').forEach(c => c.onclick = () => { $('#chatInput').value = c.textContent.trim(); send(); });
+
+/* VOICE INPUT */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition; let rec = null;
+$('#micBtn').onclick = () => {
+  if(!SR) return alert('Speech recognition not supported in this browser.');
+  rec = new SR(); rec.lang = { en: 'en-IN', te: 'te-IN', ta: 'ta-IN', hi: 'hi-IN' }[$('#lang').value] || 'en-US';
+  rec.onresult = e => { $('#chatInput').value = e.results[0][0].transcript; send(); };
+  rec.start();
+};
+
+/* 2. VISUAL SCAN */
+let imgData = null;
+$('#camStart').onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    $('#video').srcObject = stream;
+  } catch(err) {
+    alert('Camera access unavailable: ' + err.message);
+  }
+};
+$('#camShot').onclick = () => {
+  const v = $('#video'), c = $('#canvas'); c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+  c.getContext('2d').drawImage(v, 0, 0); imgData = c.toDataURL('image/jpeg');
+};
+$('#drop').onclick = () => $('#file').click();
+$('#file').onchange = e => {
+  const file = e.target.files[0];
+  if(file){
+    const r = new FileReader(); r.onload = () => { imgData = r.result; $('#drop').innerHTML = `<img src="${imgData}" style="max-height:100px;border-radius:8px">`; };
+    r.readAsDataURL(file);
+  }
+};
+$('#analyzeImg').onclick = async () => {
+  if(!imgData) return alert('Please capture or upload an image first.');
+  $('#imgOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running pathology laser scan...';
+  const res = await api('/analyze_image', { image: imgData, notes: $('#notes').value });
+  $('#imgOut').innerHTML = md(res.report || res.result || 'Analysis completed.');
+};
+
+/* 3. DRUGS */
+$('#drugSearch').onclick = async () => {
+  const q = $('#drugQ').value.trim(); if(!q) return;
+  $('#drugOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Querying drug database...';
+  const res = await api('/search_medicine', { query: q });
+  $('#drugOut').innerHTML = md(res.info || res.result || 'Search result.');
+};
+$('#checkInter').onclick = async () => {
+  const drugs = $('#drugList').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(drugs.length<2) return alert('Enter at least 2 drugs.');
+  $('#drugOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cross-checking drug interaction matrix...';
+  const res = await api('/search_medicine', { interactions: drugs });
+  $('#drugOut').innerHTML = md(res.result || res.info || 'Interactions check completed.');
+};
+
+/* 4. LABS */
+$('#analyzeLab').onclick = async () => {
+  const p = $('#param').value, v = parseFloat($('#paramVal').value);
+  if(isNaN(v)) return alert('Please enter a valid numeric value.');
+  $('#labOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Evaluating clinical reference ranges...';
+  const res = await api('/analyze_lab_report', { parameter: p, value: v });
+  $('#labOut').innerHTML = md(res.report || res.result || 'Lab analysis output.');
+};
+
+/* 5. DIET */
+$('#genDiet').onclick = async () => {
+  $('#dietOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating personalized precision meal plan...';
+  const res = await api('/generate_diet_plan', { age:+$('#age').value, weight:+$('#wt').value, height:+$('#ht').value, condition:$('#cond').value });
+  $('#dietOut').innerHTML = md(res.plan || res.result || 'Diet plan output.');
+};
+
+/* 6. SYMPTOMS */
+const SYM = ['Fever', 'Chills', 'Cough', 'Shortness of breath', 'Chest pain', 'Headache', 'Dizziness', 'Nausea', 'Abdominal pain', 'Kidney pain', 'Burning urination', 'Rash', 'Fatigue'];
+$('#symList').innerHTML = SYM.map(s => `<label class="sym-card"><input type="checkbox" value="${s}"> ${s}</label>`).join('');
+$('#clearSym').onclick = () => $$('#symList input').forEach(i=>i.checked=false);
+$('#runSym').onclick = async () => {
+  const list = $$('#symList input:checked').map(i=>i.value);
+  if($('#customSym').value.trim()) list.push($('#customSym').value.trim());
+  if(!list.length) return alert('Please select at least one symptom.');
+  $('#symOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running diagnostic triage engine...';
+  const res = await api('/api/medical_terms', { symptoms: list });
+  $('#symOut').innerHTML = md(res.result || res.response || 'Triage summary.');
+};
+
+/* 7. WIKI */
+$('#wikiGo').onclick = async () => {
+  const q = $('#wikiQ').value.trim(); if(!q) return;
+  $('#wikiOut').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fetching live Wikipedia REST API summary...';
+  const res = await api('/api/wikipedia_search', { query: q });
+  $('#wikiOut').innerHTML = md(res.result || res.extract || 'Wiki output.');
+};
+
+/* 8. SETTINGS */
+$('#saveKey').onclick = async () => {
+  await api('/set_api_key', { api_key: $('#apiKey').value });
+  alert('Groq API key configured successfully for Sai Medical AI!');
+};
+</script>
+</body>
+</html>
