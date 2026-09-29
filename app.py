@@ -120,7 +120,7 @@ Format response into 5 Markdown sections:
 ### 5. 📋 Clinical Disclaimer
 """
 
-    models_to_try = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant']
+    models_to_try = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b']
     for model_name in models_to_try:
         try:
             client = Groq(api_key=valid_key)
